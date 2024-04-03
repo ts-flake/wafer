@@ -2,15 +2,15 @@ website:
   sidebar:
     contents:
       - index.ipynb
-      - section: Tutorial
+      - section: Tutorials
         contents:
-      - section: Explanation
+      - section: Explanations
         contents:
         - 01_explanation.weight_init.ipynb
       - section: Reference
         contents: 
         - 00_layers.ipynb
-        - section: Callback
+        - section: Callbacks
           contents:
             - 02_callback.progress.ipynb
         - section: Other
