@@ -1,0 +1,19 @@
+website:
+  sidebar:
+    contents:
+      - index.ipynb
+      - section: Tutorial
+        contents:
+      - section: Explanation
+        contents:
+        - 01_explanation.weight_init.ipynb
+      - section: Reference
+        contents: 
+        - 00_layers.ipynb
+        - section: Callback
+          contents:
+            - 02_callback.progress.ipynb
+        - section: Other
+          contents:
+            - 03_utils.plot.ipynb
+      

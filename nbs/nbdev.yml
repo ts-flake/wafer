@@ -1,0 +1,9 @@
+project:
+  output-dir: _docs
+
+website:
+  title: "wafer"
+  site-url: "https://ts-flake.github.io/wafer"
+  description: "Tools, ad-hoc methods, and utilis for ML."
+  repo-branch: main
+  repo-url: "https://github.com/ts-flake/wafer"
