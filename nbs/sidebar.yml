@@ -6,14 +6,18 @@ website:
         contents:
       - section: Explanations
         contents:
-        - 01_explanation.weight_init.ipynb
+        - E00_explanation.weight_init.ipynb
       - section: Reference
-        contents: 
-        - 00_layers.ipynb
+        contents:
+        - 00_core.ipynb
+        - 01_init.ipynb
+        - section: Recurrent
+          contents:
+            - 03b_recurrent.utils.ipynb
         - section: Callbacks
           contents:
-            - 02_callback.progress.ipynb
+            - 02a_callback.progress.ipynb
         - section: Other
           contents:
-            - 03_utils.plot.ipynb
+            - 99_utils.plot.ipynb
       
