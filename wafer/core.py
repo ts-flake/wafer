@@ -55,8 +55,8 @@ class BatchXfmCB(Callback):
 class MetricCB(Callback):
     "Using metrics from [`torcheval`](https://pytorch.org/torcheval/stable/) as callbacks."
     order = 10
-    def __init__(self, metrics: tuple|list,
-                 names: tuple|list[str]=None,
+    def __init__(self, metrics: tuple | list,
+                 names: tuple | list[str]=None,
                  train: bool=False # Compute metrics on train set; default on test set
                 ):
         if names is not None: assert len(metrics) == len(names), "sizes of `names` and `metrics` do not match."
@@ -216,7 +216,7 @@ class Learner():
     "One place to train/test a model."
     _default_cbs = [DeviceCB(), ProgressCB()]
     def __init__(self, model: nn.Module, # The model to be trained
-                 dls: tuple|list,        # The dataloaders used for training and testing
+                 dls: tuple | list,        # The dataloaders used for training and testing
                  opt,                    # The optimizer used to update model's parameters
                  loss_func,              # The loss function
                  cbs=[],                 # Callbacks called in `order`
@@ -351,7 +351,7 @@ from sklearn.preprocessing import StandardScaler
 # %% ../nbs/00_core.ipynb 28
 class Scaler():
     "Simple wrapper of `sklearn.preprocessing.StandardScaler`."
-    def __init__(self, data: list|np.ndarray, **kwargs):
+    def __init__(self, data: list | np.ndarray, **kwargs):
         self.shape = np.shape(data)
         self.scaler = StandardScaler().fit(np.reshape(data, (self.shape[0],-1)), **kwargs)
     
