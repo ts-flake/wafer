@@ -16,6 +16,8 @@ import time
 from tqdm.notebook import tqdm
 from IPython.display import display, clear_output, HTML
 
+from __future__ import annotations
+
 def noop (x=None, *args, **kwargs):
     "Do nothing"
     return x
