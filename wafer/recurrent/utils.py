@@ -22,7 +22,7 @@ def mk_sequential_MNIST_dls(sz: list[int]=[None, None], # Sizes of train and tes
     return mk_dls_from_ds([train, test], get_xy, bs=bs)
 
 # %% ../../nbs/03b_recurrent.utils.ipynb 7
-def eigen_show(A: np.ndarray|list[list] = [[1,1],[1,1]], figsize=(3,3)):
+def eigen_show(A: Union[np.ndarray, list[list]] = [[1,1],[1,1]], figsize=(3,3)):
     "Animate (2D) linear transformation of a matrix."
     assert np.ndim(A) == 2, "Matrix is not 2-by-2."
     fig,ax = plt.subplots(figsize=figsize)
