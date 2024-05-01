@@ -1,4 +1,7 @@
 from __future__ import annotations
+
+from typing import Union,Optional,TypeVar,Callable,Any
+
 import torch, torcheval
 import torch.nn as nn
 import torch.nn.functional as F
@@ -15,7 +18,7 @@ import matplotlib.pyplot as plt
 
 import time
 from tqdm.notebook import tqdm
-from IPython.display import display, clear_output, HTML
+from IPython.display import display, clear_output, HTML, SVG
 
 def noop (x=None, *args, **kwargs):
     "Do nothing"
