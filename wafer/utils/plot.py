@@ -8,7 +8,7 @@ from ..basics import *
 
 # %% ../../nbs/99_utils.plot.ipynb 4
 def func_show(f: callable, ax: plt.Axes=None, bounds: tuple[float]=(-2,2), title: str=""):
-    "Draw 1d function `f`."
+    "Draw 1D function `f`."
     if ax is None: ax = plt.subplots(figsize=(3,2))[1]
     xs = np.linspace(*bounds, 100)
     ax.plot(xs, f(xs))
