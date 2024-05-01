@@ -92,26 +92,32 @@ class ProgressCB(Callback):
     order = MetricCB.order + 1
 
     def before_fit(self):
-        cols = (['train_loss']
+        self._has_no_log = False
+        cols = (  (['train_loss'] if self.learner.dls[0] != [] else [])
                 + (['test_loss'] if self.learner.dls[1] != [] else [])
                 + (self.learner.metrics.names if hasattr(self.learner, 'metrics') else [])
                 + (self.learner.extra_log.all_names if hasattr(self.learner, 'extra_log') else [])
                )
+        if len(cols) == 0: self._has_no_log = True; return
         self._log = pd.DataFrame(columns=cols)
         self.disp_log = pd.DataFrame(columns=cols)
         self.disp_log_id = None
     
     def before_epoch(self):
+        if self._has_no_log: return
         if self.disp_log_id is None: self.disp_log_id = display(self.disp_log, display_id=True)
         self._one_epoch = [[],[]]
 
     def before_backward(self):
+        if self._has_no_log: return
         self._one_epoch[0].append(self.learner.loss.item()) # batch train_loss
 
     def after_loss(self):
+        if self._has_no_log: return
         self._one_epoch[1].append(self.learner.loss.item()) # batch test_loss
 
     def after_epoch(self):
+        if self._has_no_log: return
         self._log.loc[self.learner.epoch] = ([np.mean(o) for o in self._one_epoch if o != []]
                                              + (self.learner.metrics._log[-1] if hasattr(self.learner, 'metrics') else [])
                                              + (self.learner.extra_log._data if hasattr(self.learner, 'extra_log') else [])
@@ -121,6 +127,7 @@ class ProgressCB(Callback):
             self.disp_log_id.update(self.disp_log)
         
     def after_fit(self):
+        if self._has_no_log: return
         self.learner.log = self._log
 
 # %% ../nbs/00_core.ipynb 13
@@ -294,11 +301,25 @@ class Learner():
         with torch.inference_mode():
             preds = self.model(xb)
         return preds
+
+    def plot_loss(self, ax=None, figsize=(3,3), title=""):
+        if not hasattr(self, 'log'): return
+        if ax is None: fig,ax = plt.subplots(figsize=figsize)
+        try: ax.plot(self.log['train_loss'].to_numpy(), c='r', label='train')
+        except: pass
+        try: ax.plot(self.log['test_loss'].to_numpy(), c='b', label='test')
+        except: pass
+        ax.set_xlabel('epoch')
+        ax.set_ylabel('loss')
+        ax.set_title(title)
+        ax.legend(loc=1)
+        try: fig.tight_layout()
+        except: pass
         
     def __call__(self, name):
         for cb in self.cbs: getattr(cb, name, noop)()
 
-# %% ../nbs/00_core.ipynb 24
+# %% ../nbs/00_core.ipynb 23
 class Dataloader(DataLoader):
     "Extension to `torch.utils.data.DataLoader`, to work with huggingface's `Dataset`."
     def __init__(self, get_xy: callable, *args, **kwargs):
@@ -315,7 +336,7 @@ class Dataloader(DataLoader):
     def one_batch(self):
         return next(iter(self))
 
-# %% ../nbs/00_core.ipynb 25
+# %% ../nbs/00_core.ipynb 24
 def mk_dls_from_ds(ds,                        # Huggingface dataset
                    get_xy: callable,          # A function to get (input, target) from a dict 
                    fields=['train', 'test'],  # Dict keys to split the dataset
@@ -330,7 +351,7 @@ def mk_dls_from_ds(ds,                        # Huggingface dataset
         return (Dataloader(get_xy, dataset=ds[0], batch_size=bs[0], shuffle=shuffle),
                 Dataloader(get_xy, dataset=ds[1], batch_size=bs[1], shuffle=False))
 
-# %% ../nbs/00_core.ipynb 26
+# %% ../nbs/00_core.ipynb 25
 def mk_dls_from_hub(name: str,                 # Name/path of the dataset
                     get_xy: callable,          # A function to get (input, target) from a dict
                     fields=['train', 'test'],  # Dict keys to split the dataset
@@ -345,10 +366,10 @@ def mk_dls_from_hub(name: str,                 # Name/path of the dataset
     test  = Dataset.from_dict(ds[fields[1]][:sz[1]]).with_format('torch') if sz[1] is not None else ds[fields[1]].with_format('torch')
     return mk_dls_from_ds([train, test], get_xy, bs=bs, shuffle=shuffle)
 
-# %% ../nbs/00_core.ipynb 27
+# %% ../nbs/00_core.ipynb 26
 from sklearn.preprocessing import StandardScaler
 
-# %% ../nbs/00_core.ipynb 28
+# %% ../nbs/00_core.ipynb 27
 class Scaler():
     "Simple wrapper of `sklearn.preprocessing.StandardScaler`."
     def __init__(self, data: Union[list, np.ndarray], **kwargs):
