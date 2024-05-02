@@ -92,6 +92,7 @@ class ProgressCB(Callback):
     order = MetricCB.order + 1
 
     def before_fit(self):
+        self.learner.progress = self
         self._has_no_log = False
         cols = (  (['train_loss'] if self.learner.dls[0] != [] else [])
                 + (['test_loss'] if self.learner.dls[1] != [] else [])
@@ -175,8 +176,13 @@ class ClipGradCB(Callback):
 # %% ../nbs/00_core.ipynb 15
 class LRCB(Callback):
     "Learning rate callback."
-    def __init__(self, scheduler): self.scheduler = scheduler
-    def after_step(self): self.scheduler.step()
+    order = ProgressCB.order + 1
+    def __init__(self, scheduler, on_batch=False):
+        self.scheduler,self.on_batch = scheduler,on_batch
+    def after_step(self): 
+        if self.on_batch: self.scheduler.step()
+    def after_epoch(self): 
+        if not self.on_batch: self.scheduler.step()
 
 # %% ../nbs/00_core.ipynb 17
 class Hook():
@@ -302,13 +308,14 @@ class Learner():
             preds = self.model(xb)
         return preds
 
-    def plot_loss(self, ax=None, figsize=(3,3), title=""):
+    def plot_loss(self, ax=None, figsize=(3,3), title="", logscale=False):
         if not hasattr(self, 'log'): return
         if ax is None: fig,ax = plt.subplots(figsize=figsize)
         try: ax.plot(self.log['train_loss'].to_numpy(), c='r', label='train')
         except: pass
         try: ax.plot(self.log['test_loss'].to_numpy(), c='b', label='test')
         except: pass
+        if logscale: ax.set_yscale('log')
         ax.set_xlabel('epoch')
         ax.set_ylabel('loss')
         ax.set_title(title)
