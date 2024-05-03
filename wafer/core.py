@@ -41,15 +41,14 @@ class DeviceCB(Callback):
     "Move the model and batch to the correct device for training."
     order = -10
     def before_fit(self): self.learner.model.to(device=self.learner.device)
-    def before_batch(self): to_device(self.learner.batch, self.learner.device)
+    def before_batch(self): self.learner.batch = to_device(self.learner.batch, self.learner.device)
 
 # %% ../nbs/00_core.ipynb 10
 class BatchXfmCB(Callback):
     "Apply a data transform to a batch."
     order = -5
     def __init__(self, xfm): self.xfm = xfm
-    def before_batch(self):
-        self.learner.batch = self.xfm(self.learner.batch)
+    def before_batch(self): self.learner.batch = self.xfm(self.learner.batch)
 
 # %% ../nbs/00_core.ipynb 11
 class MetricCB(Callback):
@@ -292,6 +291,7 @@ class Learner():
     def predict(self, x):
         "Predict on an input instance."
         self.model.eval()
+        x = to_device(x, self.device)
         with torch.inference_mode():
             try:
                 pred = self.model(x)
@@ -303,6 +303,7 @@ class Learner():
         "Predict on a batch."
         if xb is None:
             xb = self.dls[0].one_batch()[0] if self.dls[1] == [] else self.dls[1].one_batch()[0]
+        xb = to_device(xb, self.device)
         self.model.eval()
         with torch.inference_mode():
             preds = self.model(xb)
