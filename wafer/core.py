@@ -2,8 +2,8 @@
 
 # %% auto 0
 __all__ = ['to_device', 'to_detach', 'to_cpu', 'has_children', 'has_params', 'Callback', 'DeviceCB', 'BatchXfmCB', 'MetricCB',
-           'ProgressCB', 'BaseLogCB', 'ClipGradCB', 'LRCB', 'Hook', 'Hooks', 'Learner', 'Dataloader', 'mk_dls_from_ds',
-           'mk_dls_from_hub', 'Scaler']
+           'ProgressCB', 'BaseLogCB', 'ClipGradCB', 'LRCB', 'ReduceLROnPlateauCB', 'Hook', 'Hooks', 'Learner',
+           'Dataloader', 'mk_dls_from_ds', 'mk_dls_from_hub', 'Scaler']
 
 # %% ../nbs/00_core.ipynb 3
 from .imports import *
@@ -178,12 +178,33 @@ class LRCB(Callback):
     order = ProgressCB.order + 1
     def __init__(self, scheduler, on_batch=False):
         self.scheduler,self.on_batch = scheduler,on_batch
+        
     def after_step(self): 
-        if self.on_batch: self.scheduler.step()
+        if self.on_batch:  self.scheduler.step()
+            
     def after_epoch(self): 
         if not self.on_batch: self.scheduler.step()
 
-# %% ../nbs/00_core.ipynb 17
+# %% ../nbs/00_core.ipynb 16
+class ReduceLROnPlateauCB(LRCB):
+    "ReduceLROnPlateau callback."
+    def __init__(self, scheduler, metric='test_loss'):
+        super().__init__(scheduler, on_batch=False)
+        self.metric = metric
+
+    def before_fit(self):
+        try:
+            self.learner.progress._log[self.metric]
+        except:
+            raise ValueError(f"'{self.metric}' not found.")
+
+    def after_step(self): pass
+            
+    def after_epoch(self):
+        val = self.learner.progress._log[self.metric].iloc[-1]
+        self.scheduler.step(val)
+
+# %% ../nbs/00_core.ipynb 18
 class Hook():
     "From `fastai`. Register a hook to `m` with `func`."
     def __init__(self, m, func, forward=True, detach=True, cpu=True):
@@ -205,7 +226,7 @@ class Hook():
     def __enter__(self, *args): return self
     def __exit__(self, *args): self.remove()
 
-# %% ../nbs/00_core.ipynb 18
+# %% ../nbs/00_core.ipynb 19
 class Hooks():
     "From `fastai`. Register `Hook` to models in `ms`."
     def __init__(self, ms, func, forward=True, detach=True, cpu=True):
@@ -223,7 +244,7 @@ class Hooks():
     def __enter__(self, *args): return self
     def __exit__ (self, *args): self.remove()
 
-# %% ../nbs/00_core.ipynb 21
+# %% ../nbs/00_core.ipynb 22
 class Learner():
     "One place to train/test a model."
     _default_cbs = [DeviceCB(), ProgressCB()]
@@ -327,7 +348,7 @@ class Learner():
     def __call__(self, name):
         for cb in self.cbs: getattr(cb, name, noop)()
 
-# %% ../nbs/00_core.ipynb 23
+# %% ../nbs/00_core.ipynb 24
 class Dataloader(DataLoader):
     "Extension to `torch.utils.data.DataLoader`, to work with huggingface's `Dataset`."
     def __init__(self, get_xy: callable, *args, **kwargs):
@@ -344,7 +365,7 @@ class Dataloader(DataLoader):
     def one_batch(self):
         return next(iter(self))
 
-# %% ../nbs/00_core.ipynb 24
+# %% ../nbs/00_core.ipynb 25
 def mk_dls_from_ds(ds,                        # Huggingface dataset
                    get_xy: callable,          # A function to get (input, target) from a dict 
                    fields=['train', 'test'],  # Dict keys to split the dataset
@@ -359,7 +380,7 @@ def mk_dls_from_ds(ds,                        # Huggingface dataset
         return (Dataloader(get_xy, dataset=ds[0], batch_size=bs[0], shuffle=shuffle),
                 Dataloader(get_xy, dataset=ds[1], batch_size=bs[1], shuffle=False))
 
-# %% ../nbs/00_core.ipynb 25
+# %% ../nbs/00_core.ipynb 26
 def mk_dls_from_hub(name: str,                 # Name/path of the dataset
                     get_xy: callable,          # A function to get (input, target) from a dict
                     fields=['train', 'test'],  # Dict keys to split the dataset
@@ -374,10 +395,10 @@ def mk_dls_from_hub(name: str,                 # Name/path of the dataset
     test  = Dataset.from_dict(ds[fields[1]][:sz[1]]).with_format('torch') if sz[1] is not None else ds[fields[1]].with_format('torch')
     return mk_dls_from_ds([train, test], get_xy, bs=bs, shuffle=shuffle)
 
-# %% ../nbs/00_core.ipynb 26
+# %% ../nbs/00_core.ipynb 27
 from sklearn.preprocessing import StandardScaler
 
-# %% ../nbs/00_core.ipynb 27
+# %% ../nbs/00_core.ipynb 28
 class Scaler():
     "Simple wrapper of `sklearn.preprocessing.StandardScaler`."
     def __init__(self, data: Union[list, np.ndarray], **kwargs):
