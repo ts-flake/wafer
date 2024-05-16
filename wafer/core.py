@@ -344,6 +344,25 @@ class Learner():
         ax.legend(loc=1)
         try: fig.tight_layout()
         except: pass
+
+    def save(self, path:str, add_datetime: bool=True):
+        "Save model's state dict and log."
+        torch.save(obj=self.model.state_dict(), f=path+'-model.pth')
+        if hasattr(self, 'log'):
+            self.log.to_csv(path+'-log.csv', index=False)
+            print('Model and log all saved.')
+        else:
+            print('Model saved.')
+        
+    def load(self, path: str):
+        "Load model from saved state dict and log from csv."
+        if '-model.pth' in path: path = path.split('-model.pth')[0]
+        msg = self.model.load_state_dict(torch.load(path+'-model.pth'))
+        print(msg)
+        try:
+            self.log = pd.read_csv(path+'-log.csv')
+            print('Log loaded.')
+        except: pass
         
     def __call__(self, name):
         for cb in self.cbs: getattr(cb, name, noop)()

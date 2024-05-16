@@ -55,7 +55,7 @@ def dynshow(f: callable, # Dynamical system (x_new, dx) = f(x)
             showfield: bool=False, # To draw the vector field
             figsize: tuple[float]=(3,3),
             title: str=""):
-    "Show the (2D) trajectories evolved according to a dynamical system `f` for `n_pts` random initial points."
+    "Show the (2D) trajectories evolved according to a (autonomous) dynamical system `f` for `n_pts` random initial points.\nExpect (x_new, dx) = f(x)."
     if ax is None: fig,ax = plt.subplots(figsize=figsize)
     _f = lambda x: f(x)[0]
     # Random initial points
@@ -88,7 +88,7 @@ def stream_plot(f: callable, # Dynamical system (x_new, dx) = f(x)
                 cmap: str='inferno',
                 figsize: tuple[float]=(3,3),
                 title: str=""):
-    "Show the (2D) streamlines evolved according to a dynamical system `f`."
+    "Show the (2D) streamlines evolved according to a (autonomous) dynamical system `f`.\nExpect (x_new, dx) = f(x)"
     if ax is None: fig,ax = plt.subplots(figsize=figsize)
     ax.set_xlim(center[0] + lims[0], center[0] + lims[1])
     ax.set_ylim(center[1] + lims[2], center[1] + lims[3])
