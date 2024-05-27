@@ -17,7 +17,10 @@ from matplotlib import animation
 import matplotlib.pyplot as plt
 
 import time
+<<<<<<< HEAD
 # from tqdm import tqdm
+=======
+>>>>>>> ef01f0d9d05e3e5b8f2c3ea9f9fae8f30d06c5e9
 from tqdm.notebook import tqdm
 from IPython.display import display, clear_output, HTML, SVG
 

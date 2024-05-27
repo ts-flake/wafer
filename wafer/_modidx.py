@@ -61,7 +61,10 @@ d = { 'settings': { 'branch': 'main',
                             'wafer.core.BatchXfmCB.__init__': ('core.html#batchxfmcb.__init__', 'wafer/core.py'),
                             'wafer.core.BatchXfmCB.before_batch': ('core.html#batchxfmcb.before_batch', 'wafer/core.py'),
                             'wafer.core.Callback': ('core.html#callback', 'wafer/core.py'),
+<<<<<<< HEAD
                             'wafer.core.CancelEpochException': ('core.html#cancelepochexception', 'wafer/core.py'),
+=======
+>>>>>>> ef01f0d9d05e3e5b8f2c3ea9f9fae8f30d06c5e9
                             'wafer.core.ClipGradCB': ('core.html#clipgradcb', 'wafer/core.py'),
                             'wafer.core.ClipGradCB.__init__': ('core.html#clipgradcb.__init__', 'wafer/core.py'),
                             'wafer.core.ClipGradCB.before_step': ('core.html#clipgradcb.before_step', 'wafer/core.py'),
@@ -72,10 +75,13 @@ d = { 'settings': { 'branch': 'main',
                             'wafer.core.DeviceCB': ('core.html#devicecb', 'wafer/core.py'),
                             'wafer.core.DeviceCB.before_batch': ('core.html#devicecb.before_batch', 'wafer/core.py'),
                             'wafer.core.DeviceCB.before_fit': ('core.html#devicecb.before_fit', 'wafer/core.py'),
+<<<<<<< HEAD
                             'wafer.core.EarlyStoppingCB': ('core.html#earlystoppingcb', 'wafer/core.py'),
                             'wafer.core.EarlyStoppingCB.__init__': ('core.html#earlystoppingcb.__init__', 'wafer/core.py'),
                             'wafer.core.EarlyStoppingCB.after_epoch': ('core.html#earlystoppingcb.after_epoch', 'wafer/core.py'),
                             'wafer.core.EarlyStoppingCB.before_fit': ('core.html#earlystoppingcb.before_fit', 'wafer/core.py'),
+=======
+>>>>>>> ef01f0d9d05e3e5b8f2c3ea9f9fae8f30d06c5e9
                             'wafer.core.Hook': ('core.html#hook', 'wafer/core.py'),
                             'wafer.core.Hook.__enter__': ('core.html#hook.__enter__', 'wafer/core.py'),
                             'wafer.core.Hook.__exit__': ('core.html#hook.__exit__', 'wafer/core.py'),
@@ -131,7 +137,10 @@ d = { 'settings': { 'branch': 'main',
                             'wafer.core.Scaler.__init__': ('core.html#scaler.__init__', 'wafer/core.py'),
                             'wafer.core.Scaler.inv_xfm': ('core.html#scaler.inv_xfm', 'wafer/core.py'),
                             'wafer.core.Scaler.xfm': ('core.html#scaler.xfm', 'wafer/core.py'),
+<<<<<<< HEAD
                             'wafer.core.get_device': ('core.html#get_device', 'wafer/core.py'),
+=======
+>>>>>>> ef01f0d9d05e3e5b8f2c3ea9f9fae8f30d06c5e9
                             'wafer.core.has_children': ('core.html#has_children', 'wafer/core.py'),
                             'wafer.core.has_params': ('core.html#has_params', 'wafer/core.py'),
                             'wafer.core.mk_dls_from_ds': ('core.html#mk_dls_from_ds', 'wafer/core.py'),
@@ -144,6 +153,7 @@ d = { 'settings': { 'branch': 'main',
                             'wafer.init.lambda_init': ('init.html#lambda_init', 'wafer/init.py'),
                             'wafer.init.lsuv_init': ('init.html#lsuv_init', 'wafer/init.py'),
                             'wafer.init.rai_init': ('init.html#rai_init', 'wafer/init.py')},
+<<<<<<< HEAD
             'wafer.recurrent.models': { 'wafer.recurrent.models.FICNN': ('recurrent.model.html#ficnn', 'wafer/recurrent/models.py'),
                                         'wafer.recurrent.models.FICNN.__init__': ( 'recurrent.model.html#ficnn.__init__',
                                                                                    'wafer/recurrent/models.py'),
@@ -152,6 +162,9 @@ d = { 'settings': { 'branch': 'main',
                                         'wafer.recurrent.models.FICNN.weight_constraint': ( 'recurrent.model.html#ficnn.weight_constraint',
                                                                                             'wafer/recurrent/models.py'),
                                         'wafer.recurrent.models.ICLSTM': ('recurrent.model.html#iclstm', 'wafer/recurrent/models.py'),
+=======
+            'wafer.recurrent.models': { 'wafer.recurrent.models.ICLSTM': ('recurrent.model.html#iclstm', 'wafer/recurrent/models.py'),
+>>>>>>> ef01f0d9d05e3e5b8f2c3ea9f9fae8f30d06c5e9
                                         'wafer.recurrent.models.ICLSTM.__init__': ( 'recurrent.model.html#iclstm.__init__',
                                                                                     'wafer/recurrent/models.py'),
                                         'wafer.recurrent.models.ICLSTM._mk_block': ( 'recurrent.model.html#iclstm._mk_block',
@@ -160,6 +173,7 @@ d = { 'settings': { 'branch': 'main',
                                                                                    'wafer/recurrent/models.py'),
                                         'wafer.recurrent.models.ICLSTM.weight_constraint': ( 'recurrent.model.html#iclstm.weight_constraint',
                                                                                              'wafer/recurrent/models.py'),
+<<<<<<< HEAD
                                         'wafer.recurrent.models.ICRNN': ('recurrent.model.html#icrnn', 'wafer/recurrent/models.py'),
                                         'wafer.recurrent.models.ICRNN.__init__': ( 'recurrent.model.html#icrnn.__init__',
                                                                                    'wafer/recurrent/models.py'),
@@ -167,6 +181,11 @@ d = { 'settings': { 'branch': 'main',
                                                                                   'wafer/recurrent/models.py'),
                                         'wafer.recurrent.models.ICRNN.weight_constraint': ( 'recurrent.model.html#icrnn.weight_constraint',
                                                                                             'wafer/recurrent/models.py'),
+=======
+                                        'wafer.recurrent.models.IclstmCB': ('recurrent.model.html#iclstmcb', 'wafer/recurrent/models.py'),
+                                        'wafer.recurrent.models.IclstmCB.after_step': ( 'recurrent.model.html#iclstmcb.after_step',
+                                                                                        'wafer/recurrent/models.py'),
+>>>>>>> ef01f0d9d05e3e5b8f2c3ea9f9fae8f30d06c5e9
                                         'wafer.recurrent.models.LSTM': ('recurrent.model.html#lstm', 'wafer/recurrent/models.py'),
                                         'wafer.recurrent.models.LSTM.__init__': ( 'recurrent.model.html#lstm.__init__',
                                                                                   'wafer/recurrent/models.py'),
@@ -185,11 +204,15 @@ d = { 'settings': { 'branch': 'main',
                                         'wafer.recurrent.models.SimpleRNN._init': ( 'recurrent.model.html#simplernn._init',
                                                                                     'wafer/recurrent/models.py'),
                                         'wafer.recurrent.models.SimpleRNN.forward': ( 'recurrent.model.html#simplernn.forward',
+<<<<<<< HEAD
                                                                                       'wafer/recurrent/models.py'),
                                         'wafer.recurrent.models.WeightConstraintCB': ( 'recurrent.model.html#weightconstraintcb',
                                                                                        'wafer/recurrent/models.py'),
                                         'wafer.recurrent.models.WeightConstraintCB.after_step': ( 'recurrent.model.html#weightconstraintcb.after_step',
                                                                                                   'wafer/recurrent/models.py')},
+=======
+                                                                                      'wafer/recurrent/models.py')},
+>>>>>>> ef01f0d9d05e3e5b8f2c3ea9f9fae8f30d06c5e9
             'wafer.recurrent.utils': { 'wafer.recurrent.utils.dynshow': ('recurrent.utils.html#dynshow', 'wafer/recurrent/utils.py'),
                                        'wafer.recurrent.utils.eigen_show': ('recurrent.utils.html#eigen_show', 'wafer/recurrent/utils.py'),
                                        'wafer.recurrent.utils.mk_sequential_MNIST_dls': ( 'recurrent.utils.html#mk_sequential_mnist_dls',

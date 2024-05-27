@@ -13,7 +13,10 @@ website:
         - 01_init.ipynb
         - section: Recurrent
           contents:
+<<<<<<< HEAD
             - 03a_recurrent.model.ipynb
+=======
+>>>>>>> ef01f0d9d05e3e5b8f2c3ea9f9fae8f30d06c5e9
             - 03b_recurrent.utils.ipynb
         - section: Callbacks
           contents:
