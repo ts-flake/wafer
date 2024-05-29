@@ -22,5 +22,11 @@ from tqdm.notebook import tqdm
 from IPython.display import display, clear_output, HTML, SVG
 
 def noop (x=None, *args, **kwargs):
-    "Do nothing"
+    "Do nothing."
     return x
+
+class Noop(nn.Module):
+    "Do nothing."
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+    def forward(self, x): return x
