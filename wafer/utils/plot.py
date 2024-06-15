@@ -11,12 +11,12 @@ def func_show(f: callable, ax: plt.Axes=None, bounds: tuple[float]=(-2,2), title
     "Draw 1D function `f`."
     if ax is None: ax = plt.subplots(figsize=(3,2))[1]
     xs = np.linspace(*bounds, 100)
-    ax.plot(xs, f(xs))
+    try: ax.plot(xs, f(xs))
+    except TypeError: ax.plot(xs, f(torch.from_numpy(xs)))
     ax.set_xlabel('x');ax.set_ylabel('y');ax.set_title(title)
 
 # %% ../../nbs/99_utils.plot.ipynb 6
 fig = plt.gcf(); _default_dpi = fig.dpi; plt.close(fig)
-
 def figsz(sz: tuple[float], unit: str="cm") -> tuple[float]:
     "Converts the `sz` (width, height) in `unit` to inches."
     _cm = 1/2.54; _pixel = 1/_default_dpi

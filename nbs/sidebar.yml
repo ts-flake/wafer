@@ -11,6 +11,7 @@ website:
         contents:
         - 00_core.ipynb
         - 01_init.ipynb
+        - 04_models.ipynb
         - section: Recurrent
           contents:
             - 03a_recurrent.model.ipynb
