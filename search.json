@@ -1,0 +1,331 @@
+[
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "wafer",
+    "section": "",
+    "text": "Mimicking fastai with minimial functionalities. See the doc.",
+    "crumbs": [
+      "wafer"
+    ]
+  },
+  {
+    "objectID": "index.html#install",
+    "href": "index.html#install",
+    "title": "wafer",
+    "section": "Install",
+    "text": "Install\nClone this repo, open a terminal in the same directory and run\npip install -e .",
+    "crumbs": [
+      "wafer"
+    ]
+  },
+  {
+    "objectID": "models.html",
+    "href": "models.html",
+    "title": "Models",
+    "section": "",
+    "text": "source\n\n\n\n Lambda (f)\n\nTurn a torch function into a Moudle.",
+    "crumbs": [
+      "Reference",
+      "Models"
+    ]
+  },
+  {
+    "objectID": "models.html#utils",
+    "href": "models.html#utils",
+    "title": "Models",
+    "section": "",
+    "text": "source\n\n\n\n Lambda (f)\n\nTurn a torch function into a Moudle.",
+    "crumbs": [
+      "Reference",
+      "Models"
+    ]
+  },
+  {
+    "objectID": "models.html#basic",
+    "href": "models.html#basic",
+    "title": "Models",
+    "section": "basic",
+    "text": "basic\n\nsource\n\nXLinear\n\n XLinear (ni, nb, no, fix_basis=False, actn='tanh')\n\nKAN-like layer with RBF basis.\n\n# mm = XLinear(2,8,1,actn=Lambda(lambda o: torch.exp(-o*o)))\nmm = nn.Sequential(XLinear(2,8,5), XLinear(5,8,3))\ncount_params(mm)\n\n232\n\n\n\n# mm.plot_basis(0)\n\n\n# %%timeit\nxx = torch.randn(2)\nmm(xx).shape\n\ntorch.Size([3])",
+    "crumbs": [
+      "Reference",
+      "Models"
+    ]
+  },
+  {
+    "objectID": "models.html#input-convex",
+    "href": "models.html#input-convex",
+    "title": "Models",
+    "section": "Input convex",
+    "text": "Input convex\n\nsource\n\nFICNN\n\n FICNN (ni:int, nh:Union[int,list[int]], no:int, num_layer:int=2,\n        actn:Union[str,torch.nn.modules.module.Module]='relu',\n        out_actn:Union[str,torch.nn.modules.module.Module]=None,\n        init_gain:float=1.0)\n\nFully input-convex NN. Refer to ICNN.\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nni\nint\n\ninput size\n\n\nnh\nUnion\n\nhidden size\n\n\nno\nint\n\noutput size\n\n\nnum_layer\nint\n2\nnumber of layers (include the output layer), if nh is a list, then the num_layer = len(nh) + 1\n\n\nactn\nUnion\nrelu\nhidden activation\n\n\nout_actn\nUnion\nNone\noutput activation\n\n\ninit_gain\nfloat\n1.0\nweight initialization gain",
+    "crumbs": [
+      "Reference",
+      "Models"
+    ]
+  },
+  {
+    "objectID": "callback.progress.html",
+    "href": "callback.progress.html",
+    "title": "Progress and logging",
+    "section": "",
+    "text": "from wafer.init import *\nFor demo, consider the image classification task on the MNIST dataset.\ndls = mk_dls_from_hub('mnist', get_xy=lambda o: (o['image'].unsqueeze(1).float(), o['label']), sz=[500, 500])\ndef conv(ni, nf, ks=3, actn=True):\n    res = nn.Conv2d(ni, nf, stride=2, kernel_size=ks, padding=ks//2)\n    return nn.Sequential(res, nn.ReLU()) if actn else res\ndef mk_tst_model():\n    return nn.Sequential(\n        conv(1, 8, ks=5),        #14x14\n        conv(8, 16),             #7x7\n        conv(16, 32),            #4x4\n        conv(32, 64),            #2x2\n        nn.Flatten(),\n        nn.Linear(64*4, 10))",
+    "crumbs": [
+      "Reference",
+      "Callbacks",
+      "Progress and logging"
+    ]
+  },
+  {
+    "objectID": "callback.progress.html#gradient-flow",
+    "href": "callback.progress.html#gradient-flow",
+    "title": "Progress and logging",
+    "section": "Gradient flow",
+    "text": "Gradient flow\n\nsource\n\nGradFlowCB\n\n GradFlowCB (every:int=10, showbias:bool=False, figsize:tuple=(4, 3))\n\nA Callback that plots the mean and maximum magnitude of gradient in each layer for every iterations.\n\nfrom torcheval.metrics import MulticlassAccuracy\n\n\ntst_model = mk_tst_model()\ndefault_init(tst_model, verbose=True)\n\nConv2d(1, 8, kernel_size=(5, 5), stride=(2, 2), padding=(2, 2))                 | Xavier_normal, gain=1.\nConv2d(8, 16, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))                | He_normal, negative_slope=0.0\nConv2d(16, 32, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))               | He_normal, negative_slope=0.0\nConv2d(32, 64, kernel_size=(3, 3), stride=(2, 2), padding=(1, 1))               | He_normal, negative_slope=0.0\nLinear(in_features=256, out_features=10, bias=True)                             | He_normal, negative_slope=0.0\n\n\n\nopt = optim.SGD(tst_model.parameters(), 1e-3)\ncrit = nn.CrossEntropyLoss()\nacc = MetricCB([MulticlassAccuracy(num_classes=10)], ['acc'])\n\nlearn = Learner(tst_model, dls, opt=opt, loss_func=crit, cbs=[acc, GradFlowCB(showbias=True)])\n\n\nlearn.fit(5)\n\n\n\n\n\n\n\n\n\n\n\ntrain_loss\ntest_loss\nacc\n\n\n\n\n0\n21.340798\n7.047462\n0.172\n\n\n1\n5.107475\n4.757082\n0.188\n\n\n2\n3.500130\n3.917902\n0.202\n\n\n3\n2.827753\n3.573105\n0.264\n\n\n4\n2.398499\n3.325201\n0.264\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nTwo utility functions plot_grad_flow and plot_grad_flow_box are also available. To be used without a Learner.\n\nsource\n\n\nplot_grad_flow\n\n plot_grad_flow (m:torch.nn.modules.module.Module,\n                 ax:matplotlib.axes._axes.Axes=None, showbias:bool=False,\n                 figsize:tuple=(4, 3))\n\nGradient flow plot. Showing mean and maximum magnitude of gradient in each layer. Use just after loss.backward().\n\nsource\n\n\nplot_grad_flow_box\n\n plot_grad_flow_box (m:torch.nn.modules.module.Module,\n                     ax:matplotlib.axes._axes.Axes=None,\n                     showbias:bool=False, figsize:tuple=(4, 3))\n\nGradient flow plot. Boxplot. Use just after loss.backward().",
+    "crumbs": [
+      "Reference",
+      "Callbacks",
+      "Progress and logging"
+    ]
+  },
+  {
+    "objectID": "callback.progress.html#stats",
+    "href": "callback.progress.html#stats",
+    "title": "Progress and logging",
+    "section": "Stats",
+    "text": "Stats\n\nsource\n\nStatsCB\n\n StatsCB (every:int=10, grad:bool=False)\n\nA Callback that records mean, std, near_zero and gradident of each layer for every iterations.\n\ntst_model = mk_tst_model()\ndefault_init(tst_model)\n\n\nopt = optim.SGD(tst_model.parameters(), 1e-3)\nlstats = StatsCB(grad=True)\nlearn = Learner(tst_model, dls, opt=opt, loss_func=crit, cbs=[acc, lstats])\n\n\nlearn.fit(5)\n\n\n\n\n\n\n\n\n\n\n\ntrain_loss\ntest_loss\nacc\n\n\n\n\n0\n13.334061\n5.224933\n0.182\n\n\n1\n4.124413\n3.768529\n0.200\n\n\n2\n3.144824\n3.136613\n0.222\n\n\n3\n2.729723\n2.824360\n0.244\n\n\n4\n2.433109\n2.660774\n0.254\n\n\n\n\n\n\n\n\nlstats.plot_layer(-1)",
+    "crumbs": [
+      "Reference",
+      "Callbacks",
+      "Progress and logging"
+    ]
+  },
+  {
+    "objectID": "core.html",
+    "href": "core.html",
+    "title": "Core",
+    "section": "",
+    "text": "source\n\n\n\n get_device (device=None)\n\n\nsource\n\n\n\n\n to_cpu (xs)\n\n\nsource\n\n\n\n\n to_detach (xs)\n\n\nsource\n\n\n\n\n to_device (xs, device)\n\n\nsource\n\n\n\n\n count_params (m)\n\nCount trainable parameters.\n\nsource\n\n\n\n\n has_params (m)\n\n\nsource\n\n\n\n\n has_children (m)\n\n\nsource\n\n\n\n\n get_actn (actn:Union[str,torch.nn.modules.module.Module], default=Noop())\n\nGet the correct activation.",
+    "crumbs": [
+      "Reference",
+      "Core"
+    ]
+  },
+  {
+    "objectID": "core.html#utils",
+    "href": "core.html#utils",
+    "title": "Core",
+    "section": "",
+    "text": "source\n\n\n\n get_device (device=None)\n\n\nsource\n\n\n\n\n to_cpu (xs)\n\n\nsource\n\n\n\n\n to_detach (xs)\n\n\nsource\n\n\n\n\n to_device (xs, device)\n\n\nsource\n\n\n\n\n count_params (m)\n\nCount trainable parameters.\n\nsource\n\n\n\n\n has_params (m)\n\n\nsource\n\n\n\n\n has_children (m)\n\n\nsource\n\n\n\n\n get_actn (actn:Union[str,torch.nn.modules.module.Module], default=Noop())\n\nGet the correct activation.",
+    "crumbs": [
+      "Reference",
+      "Core"
+    ]
+  },
+  {
+    "objectID": "core.html#callbacks",
+    "href": "core.html#callbacks",
+    "title": "Core",
+    "section": "Callbacks",
+    "text": "Callbacks\n\nsource\n\nCallback\n\n Callback ()\n\nInitialize self. See help(type(self)) for accurate signature.\n\nsource\n\n\nDeviceCB\n\n DeviceCB ()\n\nMove the model and batch to the correct device for training.\n\nsource\n\n\nBatchXfmCB\n\n BatchXfmCB (xfm)\n\nApply a data transform to a batch.\n\nsource\n\n\nMetricCB\n\n MetricCB (metrics:Union[tuple,list],\n           names:Union[str,tuple[str],list[str]]=None, train:bool=False)\n\nUsing metrics from torcheval as callbacks.\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nmetrics\nUnion\n\n\n\n\nnames\nUnion\nNone\n\n\n\ntrain\nbool\nFalse\nCompute metrics on train set; default on test set\n\n\n\n\nsource\n\n\nProgressCB\n\n ProgressCB ()\n\nLog and display training infos.\n\nsource\n\n\nBaseLogCB\n\n BaseLogCB (names:list[list], funcs:list[callable], keep:bool=False)\n\nBase class. Log extra (other than standard train/test loss and metrics) infos.\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nnames\nlist\n\nNames of logged entries for each func\n\n\nfuncs\nlist\n\nFuncstions to get the logged entries; each f() should take a single input learner and outputs a list/tuple of values\n\n\nkeep\nbool\nFalse\nKeep a local log; logs can be found in self.learner.log\n\n\n\n\nsource\n\n\nClipGradCB\n\n ClipGradCB (max_norm=1, norm_type=2, error_if_nonfinite=True, **kwargs)\n\nClip the gradient norm.\n\nsource\n\n\nLRCB\n\n LRCB (scheduler, on_batch=False)\n\nLearning rate callback.\n\nsource\n\n\nReduceLROnPlateauCB\n\n ReduceLROnPlateauCB (scheduler, metric='test_loss')\n\nReduceLROnPlateau callback.\n\nsource\n\n\nEarlyStoppingCB\n\n EarlyStoppingCB (monitor:str='test_loss', comp=&lt;ufunc 'less'&gt;,\n                  min_delta:float=0.0, patience:int=10, init_val=inf,\n                  reset_best:bool=True)\n\nRefer to fastai.\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nmonitor\nstr\ntest_loss\nname of the value being monitored\n\n\ncomp\nufunc\nless\nnumpy comparison operator, e.g. np.less or np.greater\n\n\nmin_delta\nfloat\n0.0\nminimum distance between the latest value and the best monitored value\n\n\npatience\nint\n10\nnumber of epoches to wait when no improvement of the model\n\n\ninit_val\nfloat\ninf\ninitial best value\n\n\nreset_best\nbool\nTrue\nreset best at each fit",
+    "crumbs": [
+      "Reference",
+      "Core"
+    ]
+  },
+  {
+    "objectID": "core.html#hook",
+    "href": "core.html#hook",
+    "title": "Core",
+    "section": "Hook",
+    "text": "Hook\n\nsource\n\nHook\n\n Hook (m, func, forward=True, detach=True, cpu=True)\n\nFrom fastai. Register a hook to m with func.\n\nsource\n\n\nHooks\n\n Hooks (ms, func, forward=True, detach=True, cpu=True)\n\nFrom fastai. Register Hook to models in ms.",
+    "crumbs": [
+      "Reference",
+      "Core"
+    ]
+  },
+  {
+    "objectID": "core.html#learner",
+    "href": "core.html#learner",
+    "title": "Core",
+    "section": "Learner",
+    "text": "Learner\nA list of events:\n\nbefore_fit: before fitting.\nbefore_epoch: before every epoch.\nbefore_train: before model.train().\nbefore_batch: just after a batch is drawn from the current dataloader.\nbefore_pred: after unpacking a batch into xb,yb, before making predictions on xb.\nbefore_loss: before calculating the loss, after making preds.\nbefore_backward: before optimizer.zero_grad() and loss.backward().\nbefore_step: before optimizer.step().\nafter_step: after optimizer.step().\nafter_batch: after one batch is done.\nbefore_test: before model.eval().\nafter_loss: after the loss is computed, only in the testing loop.\nafter_epoch: after one epoch is done.\nafter_fit: after fitting.\n\nAttributes accessible to Callback via self.learner (after adding to a Learner)\n\nmodel: the current model.\ndls: the dataloaders (for training and testing).\nopt: the optimizer.\nbatch: the current batch.\nxb,yb: the current batched inputs and targets.\npreds: the predictions on the current xb.\nloss: the current loss (train/test).\nn_epochs: the total number of epochs.\nepoch: the current epoch.\nn_iters: the current iterations from the beginning.\n\n\nsource\n\nCancelEpochException\nCommon base class for all non-exit exceptions.\n\nsource\n\n\nLearner\n\n Learner (model:torch.nn.modules.module.Module, dls:Union[tuple,list],\n          opt, loss_func, cbs=[], disp_every:int=1,\n          device=device(type='cpu'))\n\nOne place to train/test a model.\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nmodel\nModule\n\nThe model to be trained\n\n\ndls\nUnion\n\nThe dataloaders used for training and testing\n\n\nopt\n\n\nThe optimizer used to update model’s parameters\n\n\nloss_func\n\n\nThe loss function\n\n\ncbs\nlist\n[]\nCallbacks called in order\n\n\ndisp_every\nint\n1\nDisplay log every disp_every epochs\n\n\ndevice\ndevice\ncpu",
+    "crumbs": [
+      "Reference",
+      "Core"
+    ]
+  },
+  {
+    "objectID": "core.html#data",
+    "href": "core.html#data",
+    "title": "Core",
+    "section": "Data",
+    "text": "Data\n\nsource\n\nDataloader\n\n Dataloader (dataset, get_xy:&lt;built-infunctioncallable&gt;, **kwargs)\n\nExtension to torch.utils.data.DataLoader, to work with huggingface’s Dataset.\n\nsource\n\n\nmk_dls_from_ds\n\n mk_dls_from_ds (ds, get_xy:&lt;built-infunctioncallable&gt;, fields=['train',\n                 'test'], bs=[64, 64], shuffle=True)\n\nCreate train-test dataloaders.\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nds\n\n\nHuggingface dataset\n\n\nget_xy\ncallable\n\nA function to get (input, target) from a dict\n\n\nfields\nlist\n[‘train’, ‘test’]\nDict keys to split the dataset\n\n\nbs\nlist\n[64, 64]\nBatch sizes\n\n\nshuffle\nbool\nTrue\nShuffle the training set\n\n\n\n\nsource\n\n\nmk_dls_from_hub\n\n mk_dls_from_hub (name:str, get_xy:&lt;built-infunctioncallable&gt;,\n                  fields=['train', 'test'], sz=[None, None], bs=[64, 64],\n                  shuffle=True, device=None)\n\nConveience method to create train-test dataloaders from huggingface hub.\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nname\nstr\n\nName/path of the dataset\n\n\nget_xy\ncallable\n\nA function to get (input, target) from a dict\n\n\nfields\nlist\n[‘train’, ‘test’]\nDict keys to split the dataset\n\n\nsz\nlist\n[None, None]\nSizes of train and test set, if None then returns all\n\n\nbs\nlist\n[64, 64]\nBatch sizes\n\n\nshuffle\nbool\nTrue\nShuffle the training set\n\n\ndevice\nNoneType\nNone\n\n\n\n\n\nsource\n\n\nScaler\n\n Scaler (scaler, data:Union[list,numpy.ndarray], shaper=&lt;function\n         &lt;lambda&gt;&gt;, **kwargs)\n\nSimple wrapper of sklearn.preprocessing’s scalers.\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nscaler\n\n\n\n\n\ndata\nUnion\n\n\n\n\nshaper\nfunction\n\nfunction to reshape the data into (num_sample, num_feature)\n\n\nkwargs",
+    "crumbs": [
+      "Reference",
+      "Core"
+    ]
+  },
+  {
+    "objectID": "utils.plot.html",
+    "href": "utils.plot.html",
+    "title": "Plot utils",
+    "section": "",
+    "text": "source\n\nfunc_show\n\n func_show (f:&lt;built-infunctioncallable&gt;,\n            ax:matplotlib.axes._axes.Axes=None, bounds:tuple[float]=(-2,\n            2), title:str='')\n\nDraw 1D function f.\n\nfunc_show(torch.tanh, title=r'$tanh$')\n\n\n\n\n\n\n\n\n\nsource\n\n\nfigsz\n\n figsz (sz:tuple[float], unit:str='cm')\n\nConverts the sz (width, height) in unit to inches.\n\nsource\n\n\nget_grid\n\n get_grid (n:int, nrows:int=None, ncols:int=None, figsize:tuple=None,\n           double:bool=False, title:str=None, return_fig:bool=False,\n           flatten:bool=True, **kwargs)\n\nFrom fastai. Return a grid of n axes, rows by cols\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nn\nint\n\nNumber of axes in the returned grid\n\n\nnrows\nint\nNone\nNumber of rows in the returned grid, defaulting to int(math.sqrt(n))\n\n\nncols\nint\nNone\nNumber of columns in the returned grid, defaulting to ceil(n/rows)\n\n\nfigsize\ntuple\nNone\nWidth, height in inches of the returned figure\n\n\ndouble\nbool\nFalse\nWhether to double the number of columns and n\n\n\ntitle\nstr\nNone\nIf passed, title set to the figure\n\n\nreturn_fig\nbool\nFalse\nWhether to return the figure created by subplots\n\n\nflatten\nbool\nTrue\nWhether to flatten the matplot axes such that they can be iterated over with a single loop\n\n\nkwargs\n\n\n\n\n\nReturns\n(&lt;class ‘matplotlib.figure.Figure’&gt;, &lt;class ‘matplotlib.axes._axes.Axes’&gt;)\n\nReturns just axs by default, and (fig, axs) if return_fig is set to True",
+    "crumbs": [
+      "Reference",
+      "Other",
+      "Plot utils"
+    ]
+  },
+  {
+    "objectID": "recurrent.utils.html",
+    "href": "recurrent.utils.html",
+    "title": "Utils",
+    "section": "",
+    "text": "source\n\n\n\n mk_sequential_MNIST_dls (sz:list[int]=[None, None], bs:list[int]=[128,\n                          128], permute:bool=False, device=None)\n\nMake the sequential MNIST dataloaders.\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nsz\nlist\n[None, None]\nSizes of train and test set, if None then returns all\n\n\nbs\nlist\n[128, 128]\nBatch sizes\n\n\npermute\nbool\nFalse\nApply a fixed permutation to input sequences\n\n\ndevice\nNoneType\nNone\n\n\n\n\n\nsource\n\n\n\n\n mk_addition_dls (sz:list[int]=[2000, 1000], bs:list[int]=[64, 64],\n                  seq_len:int=150, n_sum:int=2, seed:int=None)\n\nMake the Addition test dataloaders.\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nsz\nlist\n[2000, 1000]\nSizes of train and test set\n\n\nbs\nlist\n[64, 64]\nBatch sizes\n\n\nseq_len\nint\n150\nLength of input sequence\n\n\nn_sum\nint\n2\nNumber of elements to be summed\n\n\nseed\nint\nNone",
+    "crumbs": [
+      "Reference",
+      "Recurrent",
+      "Utils"
+    ]
+  },
+  {
+    "objectID": "recurrent.utils.html#data",
+    "href": "recurrent.utils.html#data",
+    "title": "Utils",
+    "section": "",
+    "text": "source\n\n\n\n mk_sequential_MNIST_dls (sz:list[int]=[None, None], bs:list[int]=[128,\n                          128], permute:bool=False, device=None)\n\nMake the sequential MNIST dataloaders.\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nsz\nlist\n[None, None]\nSizes of train and test set, if None then returns all\n\n\nbs\nlist\n[128, 128]\nBatch sizes\n\n\npermute\nbool\nFalse\nApply a fixed permutation to input sequences\n\n\ndevice\nNoneType\nNone\n\n\n\n\n\nsource\n\n\n\n\n mk_addition_dls (sz:list[int]=[2000, 1000], bs:list[int]=[64, 64],\n                  seq_len:int=150, n_sum:int=2, seed:int=None)\n\nMake the Addition test dataloaders.\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nsz\nlist\n[2000, 1000]\nSizes of train and test set\n\n\nbs\nlist\n[64, 64]\nBatch sizes\n\n\nseq_len\nint\n150\nLength of input sequence\n\n\nn_sum\nint\n2\nNumber of elements to be summed\n\n\nseed\nint\nNone",
+    "crumbs": [
+      "Reference",
+      "Recurrent",
+      "Utils"
+    ]
+  },
+  {
+    "objectID": "recurrent.utils.html#metric",
+    "href": "recurrent.utils.html#metric",
+    "title": "Utils",
+    "section": "Metric",
+    "text": "Metric\n\nsource\n\nAddTstMetric\n\n AddTstMetric (eps=0.04)\n\nAccuracy metric for the addition test.",
+    "crumbs": [
+      "Reference",
+      "Recurrent",
+      "Utils"
+    ]
+  },
+  {
+    "objectID": "recurrent.utils.html#plot",
+    "href": "recurrent.utils.html#plot",
+    "title": "Utils",
+    "section": "Plot",
+    "text": "Plot\n\nsource\n\neigen_show\n\n eigen_show (A:Union[numpy.ndarray,list[list]]=[[1, 1], [1, 1]],\n             figsize=(3, 3))\n\nAnimate (2D) linear transformation of a matrix.\n\nsource\n\n\ndynshow\n\n dynshow (f:&lt;built-infunctioncallable&gt;, ax=None, n_pts:int=3,\n          n_steps:int=20, center:tuple[float]=(0.0, 0.0),\n          lims:tuple[float]=(-1.0, 1.0, -1.0, 1.0), showfield:bool=False,\n          figsize:tuple[float]=(3, 3), title:str='')\n\nShow the (2D) trajectories evolved according to a (autonomous) dynamical system f for n_pts random initial points. Expect (x_new, dx) = f(x).\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nf\ncallable\n\nDynamical system (x_new, dx) = f(x)\n\n\nax\nNoneType\nNone\n\n\n\nn_pts\nint\n3\n\n\n\nn_steps\nint\n20\n\n\n\ncenter\ntuple\n(0.0, 0.0)\n\n\n\nlims\ntuple\n(-1.0, 1.0, -1.0, 1.0)\nx,y limits\n\n\nshowfield\nbool\nFalse\nTo draw the vector field\n\n\nfigsize\ntuple\n(3, 3)\n\n\n\ntitle\nstr\n\n\n\n\n\n\nsource\n\n\nstream_plot\n\n stream_plot (f:&lt;built-infunctioncallable&gt;, ax=None,\n              center:tuple[float]=(0.0, 0.0), lims:tuple[float]=(-1.0,\n              1.0, -1.0, 1.0), cmap:str='inferno',\n              figsize:tuple[float]=(3, 3), title:str='')\n\nShow the (2D) streamlines evolved according to a (autonomous) dynamical system f. Expect (x_new, dx) = f(x)\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nf\ncallable\n\nDynamical system (x_new, dx) = f(x)\n\n\nax\nNoneType\nNone\n\n\n\ncenter\ntuple\n(0.0, 0.0)\n\n\n\nlims\ntuple\n(-1.0, 1.0, -1.0, 1.0)\nx,y limits\n\n\ncmap\nstr\ninferno\n\n\n\nfigsize\ntuple\n(3, 3)\n\n\n\ntitle\nstr",
+    "crumbs": [
+      "Reference",
+      "Recurrent",
+      "Utils"
+    ]
+  },
+  {
+    "objectID": "init.html",
+    "href": "init.html",
+    "title": "Initialization",
+    "section": "",
+    "text": "source\n\n\n\n lambda_init (m:torch.nn.modules.module.Module, func:&lt;built-\n              infunctioncallable&gt;=&lt;function &lt;lambda&gt;&gt;)\n\nInitialize the weight and bias of a model m with func.\n\nsource\n\n\n\n\n lsuv_init (m:torch.nn.modules.module.Module, xb:torch.Tensor,\n            tol:float=0.01, n_iter:int=10, verbose:bool=False)\n\nRefer to All you need is a good init.\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nm\nModule\n\nModel\n\n\nxb\nTensor\n\nMini-batch input\n\n\ntol\nfloat\n0.01\nTolerance\n\n\nn_iter\nint\n10\nMaximum number of iterations\n\n\nverbose\nbool\nFalse\nPrint out details\n\n\n\nThe xb mini-batch is used to estimate the statistics (mean and std) for scaling the weights, similar to BatchNorm, but only for initialization. The batch size of xb could be different to the actual size used during training.\n\n# test model\ntst_model = nn.Sequential(nn.Conv2d(3,10,3), nn.ReLU(),\n                          nn.Conv2d(10,10,1, bias=False), nn.LeakyReLU(),\n                          nn.Flatten(), nn.Linear(640,10))\n\n\nxb = torch.randn(50,3,10,10)\nlsuv_init(tst_model, xb, verbose=True)\n\nConv2d(3, 10, kernel_size=(3, 3), stride=(1, 1))                                | took 1 iterations, mean= 0.0001, std=1.0000\nConv2d(10, 10, kernel_size=(1, 1), stride=(1, 1), bias=False)                   | took 1 iterations, mean= 0.1545, std=1.0000\nLinear(in_features=640, out_features=10, bias=True)                             | took 2 iterations, mean= 0.0000, std=1.0000\n\n\n\nprint_forward_stats(tst_model, torch.randn(50,3,10,10))\n\nConv2d      | mean=-0.0094, std=1.0192\nReLU        | mean= 0.4013, std=0.5917\nConv2d      | mean= 0.1510, std=1.0100\nLeakyReLU   | mean= 0.4619, std=0.6669\nFlatten     | mean= 0.4619, std=0.6669\nLinear      | mean= 0.0487, std=1.0040\n\n\n\nsource\n\n\n\n\n default_init (m:torch.nn.modules.module.Module, normal:bool=True,\n               verbose:bool=False)\n\nInitialize weights of nn.Linear and nn.ConvXd using Xavier’s or Kaiming’s method; zero biases; custom gains.\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nm\nModule\n\nModel\n\n\nnormal\nbool\nTrue\nUse normal distribution\n\n\nverbose\nbool\nFalse\nPrint out details\n\n\n\n\ndefault_init(tst_model, verbose=True)\n\nConv2d(3, 10, kernel_size=(3, 3), stride=(1, 1))                                | Xavier_normal, gain=1.\nConv2d(10, 10, kernel_size=(1, 1), stride=(1, 1), bias=False)                   | He_normal, negative_slope=0.0\nLinear(in_features=640, out_features=10, bias=True)                             | He_normal, negative_slope=0.01\n\n\n\nprint_forward_stats(tst_model, torch.randn(50,3,10,10))\n\nConv2d      | mean= 0.0016, std=0.6874\nReLU        | mean= 0.2725, std=0.4041\nConv2d      | mean=-0.1781, std=0.6591\nLeakyReLU   | mean= 0.1643, std=0.3121\nFlatten     | mean= 0.1643, std=0.3121\nLinear      | mean= 0.0419, std=0.4706\n\n\n\nsource\n\n\n\n\n rai_init (m:torch.nn.modules.module.Module)\n\nRandomized asymmetric initializer. Refer to Dying ReLU and Initialization: Theory and Numerical Examples",
+    "crumbs": [
+      "Reference",
+      "Initialization"
+    ]
+  },
+  {
+    "objectID": "init.html#feed-forward-networks",
+    "href": "init.html#feed-forward-networks",
+    "title": "Initialization",
+    "section": "",
+    "text": "source\n\n\n\n lambda_init (m:torch.nn.modules.module.Module, func:&lt;built-\n              infunctioncallable&gt;=&lt;function &lt;lambda&gt;&gt;)\n\nInitialize the weight and bias of a model m with func.\n\nsource\n\n\n\n\n lsuv_init (m:torch.nn.modules.module.Module, xb:torch.Tensor,\n            tol:float=0.01, n_iter:int=10, verbose:bool=False)\n\nRefer to All you need is a good init.\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nm\nModule\n\nModel\n\n\nxb\nTensor\n\nMini-batch input\n\n\ntol\nfloat\n0.01\nTolerance\n\n\nn_iter\nint\n10\nMaximum number of iterations\n\n\nverbose\nbool\nFalse\nPrint out details\n\n\n\nThe xb mini-batch is used to estimate the statistics (mean and std) for scaling the weights, similar to BatchNorm, but only for initialization. The batch size of xb could be different to the actual size used during training.\n\n# test model\ntst_model = nn.Sequential(nn.Conv2d(3,10,3), nn.ReLU(),\n                          nn.Conv2d(10,10,1, bias=False), nn.LeakyReLU(),\n                          nn.Flatten(), nn.Linear(640,10))\n\n\nxb = torch.randn(50,3,10,10)\nlsuv_init(tst_model, xb, verbose=True)\n\nConv2d(3, 10, kernel_size=(3, 3), stride=(1, 1))                                | took 1 iterations, mean= 0.0001, std=1.0000\nConv2d(10, 10, kernel_size=(1, 1), stride=(1, 1), bias=False)                   | took 1 iterations, mean= 0.1545, std=1.0000\nLinear(in_features=640, out_features=10, bias=True)                             | took 2 iterations, mean= 0.0000, std=1.0000\n\n\n\nprint_forward_stats(tst_model, torch.randn(50,3,10,10))\n\nConv2d      | mean=-0.0094, std=1.0192\nReLU        | mean= 0.4013, std=0.5917\nConv2d      | mean= 0.1510, std=1.0100\nLeakyReLU   | mean= 0.4619, std=0.6669\nFlatten     | mean= 0.4619, std=0.6669\nLinear      | mean= 0.0487, std=1.0040\n\n\n\nsource\n\n\n\n\n default_init (m:torch.nn.modules.module.Module, normal:bool=True,\n               verbose:bool=False)\n\nInitialize weights of nn.Linear and nn.ConvXd using Xavier’s or Kaiming’s method; zero biases; custom gains.\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nm\nModule\n\nModel\n\n\nnormal\nbool\nTrue\nUse normal distribution\n\n\nverbose\nbool\nFalse\nPrint out details\n\n\n\n\ndefault_init(tst_model, verbose=True)\n\nConv2d(3, 10, kernel_size=(3, 3), stride=(1, 1))                                | Xavier_normal, gain=1.\nConv2d(10, 10, kernel_size=(1, 1), stride=(1, 1), bias=False)                   | He_normal, negative_slope=0.0\nLinear(in_features=640, out_features=10, bias=True)                             | He_normal, negative_slope=0.01\n\n\n\nprint_forward_stats(tst_model, torch.randn(50,3,10,10))\n\nConv2d      | mean= 0.0016, std=0.6874\nReLU        | mean= 0.2725, std=0.4041\nConv2d      | mean=-0.1781, std=0.6591\nLeakyReLU   | mean= 0.1643, std=0.3121\nFlatten     | mean= 0.1643, std=0.3121\nLinear      | mean= 0.0419, std=0.4706\n\n\n\nsource\n\n\n\n\n rai_init (m:torch.nn.modules.module.Module)\n\nRandomized asymmetric initializer. Refer to Dying ReLU and Initialization: Theory and Numerical Examples",
+    "crumbs": [
+      "Reference",
+      "Initialization"
+    ]
+  },
+  {
+    "objectID": "e00_explanation.weight_init.html",
+    "href": "e00_explanation.weight_init.html",
+    "title": "Weight initialization",
+    "section": "",
+    "text": "from wafer.basics import *",
+    "crumbs": [
+      "Explanations",
+      "Weight initialization"
+    ]
+  },
+  {
+    "objectID": "e00_explanation.weight_init.html#gain",
+    "href": "e00_explanation.weight_init.html#gain",
+    "title": "Weight initialization",
+    "section": "Gain",
+    "text": "Gain\nConsider a standard FNN with hidden layers of equal size. A bad initialization of weights (biases are initialized to zeros) leads to unstable signal flows, as the reponses after each layer may explode or vanish. The key to the classical Xavier initialization is the variance scaling sqrt(1/n), where n = (fan_in + fan_out)/2 is of the order of the layer width. However, due to the effect of non-linear activations, a slight correction is necessary, aka gain, to ensure zero-mean and one-std.\n\nWe can either demand the reponse (activation output) or the net input to a neuron to have one-std. The results are the two functions calc_gain_kumar and calc_gain that compute the gain of an actn given values of it and its derivative evaluated at 0.\n\nrefs:\n\nKumar. On weight initialization in deep neural networks, 2017.\npytorch forum\n\n\ncalc_gain_kumar = lambda a,b: np.sqrt(1/(b*b*(1 + a*a)))  #a: f(0), b: f'(0)\ncalc_gain       = lambda a,b: np.sqrt(1/(a*a + b*b))",
+    "crumbs": [
+      "Explanations",
+      "Weight initialization"
+    ]
+  },
+  {
+    "objectID": "e00_explanation.weight_init.html#dying-relu",
+    "href": "e00_explanation.weight_init.html#dying-relu",
+    "title": "Weight initialization",
+    "section": "Dying ReLU",
+    "text": "Dying ReLU\nDying ReLU refers to the situation when a ReLU neuron is inactive for all inputs during training (aka dead) after an erroneous weight update. When this happens in the first layer and the whole layer is dead, the model stops learning. If this happens to any hidden layer, dead neurons may be reactivated.\nFor a deep-and-narrow FNN-ReLU network, this problem is more severe.\n\ndef lin(ni, no, actn=True):\n    res = nn.Linear(ni, no)\n    return nn.Sequential(res, nn.ReLU()) if actn else res\ndef mk_tst_model(ni, nh, no, n_layer=10):\n    layers = [lin(ni, nh)] + [lin(nh, nh) for _ in range(1,n_layer-1)] + [lin(nh, no, False)]\n    return nn.Sequential(*layers)\n\n\nxs = (torch.rand(3000, 1)*2 - 1)*np.sqrt(3)\nds = Dataset.from_dict({'x': xs, 'y': xs.abs()}).train_test_split(0.3).with_format('torch')\ndls = mk_dls_from_ds(ds, lambda o: (o['x'], o['y']), bs=[64,128])\n\nCommon initialization methods, i.e. Xavier and He, default_init, does not help. lsuv_init or orthogonal_ is slightly better.\nPossible solutions:\n\nincrease layer width (significant improvement).\nchange activations.\nuse ResNet-like architecture.\n\n\ntst_model = mk_tst_model(1,2,1)\n# default_init(tst_model)\nlsuv_init(tst_model, xb=dls[0].one_batch()[0])\n# lambda_init(tst_model, lambda w,b: (nn.init.orthogonal_(w), nn.init.zeros_(b)))\n\n\nopt = optim.Adam(tst_model.parameters())\ncrit = nn.L1Loss()\nlstats = StatsCB(grad=True)\nlearn = Learner(tst_model, dls, opt=opt, loss_func=crit, cbs=[GradFlowCB(showbias=True), lstats], disp_every=2)\n\n\nlearn.fit(20)\n\n\n\n\n\n\n\n\n\n\n\ntrain_loss\ntest_loss\n\n\n\n\n0\n0.884249\n0.815916\n\n\n2\n0.626629\n0.642336\n\n\n4\n0.537691\n0.559477\n\n\n6\n0.472850\n0.494931\n\n\n8\n0.426832\n0.456378\n\n\n10\n0.424512\n0.456035\n\n\n12\n0.422784\n0.455023\n\n\n14\n0.422345\n0.453439\n\n\n16\n0.422001\n0.451556\n\n\n18\n0.419790\n0.451089\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nlstats.plot_layer(0)\n\n\n\n\n\n\n\n\n\nshow_preds(tst_model, *dls[0].one_batch())\n\n\n\n\n\n\n\n\n\nRAI init\nA new initialization, called randomized asymmetric initializer (RAI) is proposed in Lu Lu et al. Dying ReLU and Initialization: Theory and Numerical Examples, 2020 to alleviate the dying ReLU problem (lower probability of being “born-dead” or “train-to-dead”). It does so by tempering the symmetric weight distribution found in common initialization schemes.\n\ntst_model = mk_tst_model(1,2,1)\nrai_init(tst_model)\n\n\nopt = optim.Adam(tst_model.parameters())\ncrit = nn.L1Loss()\nlstats = StatsCB(grad=True)\nlearn = Learner(tst_model, dls, opt=opt, loss_func=crit, cbs=[GradFlowCB(showbias=True), lstats], disp_every=2)\n\n\nlearn.fit(20)\n\n\n\n\n\n\n\n\n\n\n\ntrain_loss\ntest_loss\n\n\n\n\n0\n1.129895\n1.115138\n\n\n2\n0.875230\n0.855694\n\n\n4\n0.642533\n0.645513\n\n\n6\n0.497863\n0.519501\n\n\n8\n0.441317\n0.472920\n\n\n10\n0.425380\n0.459160\n\n\n12\n0.413404\n0.440774\n\n\n14\n0.357549\n0.329050\n\n\n16\n0.111896\n0.095048\n\n\n18\n0.035309\n0.030592\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nlstats.plot_layer(0)\n\n\n\n\n\n\n\n\n\nshow_preds(tst_model, *dls[0].one_batch())",
+    "crumbs": [
+      "Explanations",
+      "Weight initialization"
+    ]
+  },
+  {
+    "objectID": "recurrent.model.html",
+    "href": "recurrent.model.html",
+    "title": "RNN models",
+    "section": "",
+    "text": "source\n\n\n\n Select (idx=0)\n\nSelect from iterable.\n\nsource\n\n\n\n\n check_nonneg_weight (m)\n\nCheck the non-negative condition of weights.",
+    "crumbs": [
+      "Reference",
+      "Recurrent",
+      "RNN models"
+    ]
+  },
+  {
+    "objectID": "recurrent.model.html#utils",
+    "href": "recurrent.model.html#utils",
+    "title": "RNN models",
+    "section": "",
+    "text": "source\n\n\n\n Select (idx=0)\n\nSelect from iterable.\n\nsource\n\n\n\n\n check_nonneg_weight (m)\n\nCheck the non-negative condition of weights.",
+    "crumbs": [
+      "Reference",
+      "Recurrent",
+      "RNN models"
+    ]
+  },
+  {
+    "objectID": "recurrent.model.html#basic",
+    "href": "recurrent.model.html#basic",
+    "title": "RNN models",
+    "section": "Basic",
+    "text": "Basic\n\nsource\n\nSimpleRNN\n\n SimpleRNN (ni, nh, no, num_layers:int=1, actn:str='tanh',\n            out_actn:Union[str,torch.nn.modules.module.Module]=None,\n            init:str='normal', return_seq:bool=False)\n\n*A RNN with its output mapped through a dense layer.\nInput: x, shape (N, L, D_in) or (N, D_in) Output: outp, shape (N, L, D_out) or (N, D_out)*\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nni\n\n\n\n\n\nnh\n\n\n\n\n\nno\n\n\n\n\n\nnum_layers\nint\n1\n\n\n\nactn\nstr\ntanh\nnonlinearity, [‘tanh’, ‘relu’]\n\n\nout_actn\nUnion\nNone\noutput activation\n\n\ninit\nstr\nnormal\ninitialization method [‘uniform’, ‘normal’, ‘irnn’, ‘np-rnn’]\n\n\nreturn_seq\nbool\nFalse\nreturn the whole sequence\n\n\n\n\nsource\n\n\nLSTM\n\n LSTM (ni, nh, num_layers=1,\n       actn:Union[str,torch.nn.modules.module.Module]='tanh',\n       gate_actn:Union[str,torch.nn.modules.module.Module]='sigmoid',\n       dropout=0.0, unit_forget_bias=True,\n       init_gain=np.float64(0.5773502691896258), recurrent_init_gain=1.0,\n       return_seq=False)\n\n*Custom LSTM, allowing for different activations. Assuming batch_first=True and bidirectional=False.\nInputs: x, h0_c0; x: shape (N, L, D_in) or (N, D_in). h0_c0: (h0, c0), Union[list, tuple], optional, default zeros, each of shape (num_layers, N, hidden_size).\nOutputs: output, (hn, cn); output: shape (N, L, hidden_size) or (N, hidden_size), outputs of the last layer for each token. hn: shape (num_layers, N, hidden_size), final hidden state. cn: shape (num_layers, N, hidden_size), final cell state.*",
+    "crumbs": [
+      "Reference",
+      "Recurrent",
+      "RNN models"
+    ]
+  },
+  {
+    "objectID": "recurrent.model.html#input-convex",
+    "href": "recurrent.model.html#input-convex",
+    "title": "RNN models",
+    "section": "Input convex",
+    "text": "Input convex\n\nsource\n\nSimpleICRNN\n\n SimpleICRNN (ni:int, nh:int, no:int,\n              actn:Union[str,torch.nn.modules.module.Module]='relu',\n              out_actn:Union[str,torch.nn.modules.module.Module]=None,\n              expand_inp:bool=True, return_seq:bool=False)\n\n*Simple input-convex RNN. h = f(Wh_ + Ux + b); y = g(Vh + b), all weights are non-negative and activations are convex and non-decreasing. Weights are initialized as in np-RNN.\nInputs: x, shape (N,L,D_in) Outputs: outputs, shape (N,L,D_out)*\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nni\nint\n\ninput size\n\n\nnh\nint\n\nhidden size\n\n\nno\nint\n\noutput size\n\n\nactn\nUnion\nrelu\nhidden activation\n\n\nout_actn\nUnion\nNone\noutput activation\n\n\nexpand_inp\nbool\nTrue\nexpand the input to [x, -x]\n\n\nreturn_seq\nbool\nFalse\nreturn the whole seuqnece\n\n\n\n\nsource\n\n\nICRNN\n\n ICRNN (ni:int, nh:int, no:int,\n        actn:Union[str,torch.nn.modules.module.Module]='relu',\n        out_actn:Union[str,torch.nn.modules.module.Module]=None,\n        expand_inp:bool=True, init_gain:float=1.0,\n        recurrent_init_gain:float=1.0, return_seq:bool=False)\n\n*Input-convex RNN. Refer to Optimal Control Via Neural Networks: A Convex Approach. The recurrent weight matrix is initialized as Identity * recurrent_init_gain.\nInputs: x, shape (N,L,D_in) Outputs: outputs, shape (N,L,D_out)*\n\n\n\n\n\n\n\n\n\n\nType\nDefault\nDetails\n\n\n\n\nni\nint\n\ninput size\n\n\nnh\nint\n\nhidden size\n\n\nno\nint\n\noutput size\n\n\nactn\nUnion\nrelu\nhidden activation\n\n\nout_actn\nUnion\nNone\noutput activation\n\n\nexpand_inp\nbool\nTrue\nexpand the input to [x, -x]\n\n\ninit_gain\nfloat\n1.0\nweight initialization gain\n\n\nrecurrent_init_gain\nfloat\n1.0\nrecurrent weight initialization gain\n\n\nreturn_seq\nbool\nFalse\nreturn the whole seuqnece\n\n\n\n\nsource\n\n\nWeightConstraintCB\n\n WeightConstraintCB ()\n\nWeight constraint callback.",
+    "crumbs": [
+      "Reference",
+      "Recurrent",
+      "RNN models"
+    ]
+  }
+]
